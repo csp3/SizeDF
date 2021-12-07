@@ -34,7 +34,7 @@ function sizedf {
         if(Test-Path -Path $_.Name -PathType Container) 
         {
             try {
-                $TAMANIO = (Get-ChildItem $_.Name -Force -Recurse | Measure-Object  -Sum {$_.Length})   
+                $TAMANIO = (Get-ChildItem $_.Name -Force -Recurse | Measure-Object  -Sum {$_.Length} -ErrorAction Stop )   
                 $TAMANIO = $TAMANIO.Sum 
                 -ErrorAction Stop
             }
