@@ -36,11 +36,13 @@ function sizedf {
             try {
                 $TAMANIO = (Get-ChildItem $_.Name -Force -Recurse | Measure-Object  -Sum {$_.Length})   
                 $TAMANIO = $TAMANIO.Sum 
+                -ErrorAction Stop
             }
             catch {
                 $TAMANIO=0
             }
             
+            #calculando tamanio
             if($TAMANIO -lt 1024)
             {
                 Write-Host -ForegroundColor Green  "dir."  ($TAMANIO/1).ToString("0.00").PadLeft(10)  "by `t"  $_.Name 
@@ -55,7 +57,8 @@ function sizedf {
             }
         } 
         else 
-        {
+        {   
+            #calculando tamanio 
             $TAMANIO = (Get-Item $_.Name -Force).Length
             
             if($TAMANIO -lt 1024)
@@ -75,5 +78,17 @@ function sizedf {
         $TOTAL += $TAMANIO
     }
     ; 
-    Write-Host  "`nTOTAL = "  ($TOTAL/1mb).ToString("#.00").PadLeft(4)  "MB`n " 
+    #mostrando resultado
+    if ($TOTAL -lt 2014) 
+    {
+        Write-Host  -ForegroundColor Green "`nTOTAL = "  ($TOTAL/1).ToString("0.00").PadLeft(5)  "by`n "     
+    }
+    if ($TOTAL -ge 1024 -and $TOTAL -lt 1048576) 
+    {
+        Write-Host  -ForegroundColor Green "`nTOTAL = "  ($TOTAL/1kb).ToString("0.00").PadLeft(5)  "Kb`n "     
+    }
+    if ($TOTAL -ge 1048576) 
+    {
+        Write-Host  -ForegroundColor Green "`nTOTAL = "  ($TOTAL/1mb).ToString("0.00").PadLeft(5)  "MB`n " 
+    }
 }
