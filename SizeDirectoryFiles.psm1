@@ -2,7 +2,7 @@
 .DESCRIPTION
 Muestra el tamaño de directorios y archivos en una Lista 
 .EXAMPLE
-C:\PS> SizeDir [Ruta] 
+C:\PS> SizeDF [Ruta] 
 .NOTES
 Author: CSolisP
 Date:   Dic 2021
