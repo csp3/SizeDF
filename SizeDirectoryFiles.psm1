@@ -1,6 +1,6 @@
 ﻿<#
 .DESCRIPTION
-Muestra el tamaño de directorios y archivos en una Lista 
+Muestra el tamaño de directorios y archivos en una Lista (si dir. o fil. estan ocultos) 
 .EXAMPLE
 C:\PS> SizeDF [Ruta] 
 .NOTES
@@ -71,71 +71,71 @@ function SizeDF
     $TOTALDIR = 0 
     foreach ($item in $COMANDO )  
     { 
+        #ruta completa 
         $FN = $item.FullName  
         
         if(Test-Path -Path $FN -PathType Container) 
         {
-            $TAMANIO = SizeD -Ruta $FN   
-            
             #calculando tamanio
-            if($TAMANIO -lt 1024)
+            $TAMANIO = SizeD -Ruta $FN 
+            #si tiene atributo oculto 
+            if (Get-Item $FN -Force | where-object { $_.Attributes -like "*hidden*" })  
             {
-                Write-Host -ForegroundColor Green  "dir."  ($TAMANIO/1).ToString("0.00").PadLeft(10)  "by `t"  $FN  
+                presentacion -valor $TAMANIO -cadena1 "dir." -cadena2 $FN -color "Green"         
             }
-            if($TAMANIO -ge 1024 -and $TAMANIO -lt 1048576) 
+            else 
             {
-                Write-Host -ForegroundColor Green  "dir."  ($TAMANIO/1kb).ToString("0.00").PadLeft(10)  "Kb `t"  $FN    
-            }
-            if($TAMANIO -ge 1048576 -and $TAMANIO -lt 1073741824) 
-            {
-                Write-Host -ForegroundColor Green  "dir."  ($TAMANIO/1mb).ToString("0.00").PadLeft(10)  "MB `t"  $FN  
-            }
-            if($TAMANIO -ge 1073741824) 
-            {
-                Write-Host -ForegroundColor Green  "dir."  ($TAMANIO/1gb).ToString("0.00").PadLeft(10)  "GB `t"  $FN  
+                presentacion -valor $TAMANIO -cadena1 "dir" -cadena2 $FN -color "Green" 
             }
         } 
         else 
         {   
             #calculando tamanio 
-            $TAMANIO = (Get-Item -Path $FN -Force).Length
-            
-            if($TAMANIO -lt 1024)
+            $TAMANIO = (Get-Item -Path $FN -Force).Length 
+            #si tiene atributo oculto 
+            if (Get-Item $FN -Force | where-object { $_.Attributes -like "*hidden*" })  
             {
-                Write-Host  "file"  ($TAMANIO/1).ToString("0.00").PadLeft(10)  "by `t"  $FN  
+                presentacion -valor $TAMANIO -cadena1 "fil." -cadena2 $FN          
             }
-            if($TAMANIO -ge 1024 -and $TAMANIO -lt 1048576)
+            else 
             {
-                Write-Host  "file"  ($TAMANIO/1kb).ToString("0.00").PadLeft(10)  "Kb `t"  $FN  
-            }
-            if($TAMANIO -ge 1048576 -and $TAMANIO -lt 1073741824) 
-            {
-                Write-Host  "file"  ($TAMANIO/1mb).ToString("0.00").PadLeft(10)  "MB `t"  $FN  
-            }
-            if($TAMANIO -ge 1073741824) 
-            {
-                Write-Host  "file"  ($TAMANIO/1gb).ToString("0.00").PadLeft(10)  "GB `t"  $FN   
+                presentacion -valor $TAMANIO -cadena1 "fil" -cadena2 $FN  
             }
         } 
         ;
-        $TOTALDIR += $TAMANIO 
+        $TOTALDIR = $TOTALDIR + $TAMANIO 
     }
     ; 
     #mostrando resultado
-    if ($TOTALDIR -lt 2014) 
+    write-host " "
+    presentacion -valor $TOTALDIR -cadena1 "TOTAL = " -cadena2 "" -color "Green" 
+    write-host " "  
+}
+
+#funcion presentacion 
+function presentacion 
+{   
+    param (
+        $valor = 0, 
+        $cadena1 = "", 
+        $cadena2 = "",
+        $color = "White" 
+    ) 
+    
+    if ($valor -lt 2014) 
     {
-        Write-Host  -ForegroundColor Green "`nTOTAL = "  ($TOTALDIR/1).ToString("0.00").PadLeft(5)  "by`n "     
+        Write-Host  -ForegroundColor $color $cadena1 ($valor/1  ).ToString("0.00").PadLeft(10)  "by `t" $cadena2  
     }
-    if ($TOTALDIR -ge 1024 -and $TOTALDIR -lt 1048576) 
+    if ($valor -ge 1024 -and $valor -lt 1048576) 
     {
-        Write-Host  -ForegroundColor Green "`nTOTAL = "  ($TOTALDIR/1kb).ToString("0.00").PadLeft(5)  "Kb`n "     
+        Write-Host  -ForegroundColor $color $cadena1 ($valor/1kb).ToString("0.00").PadLeft(10)  "Kb `t" $cadena2  
     }
-    if ($TOTALDIR -ge 1048576 -and $TOTALDIR -lt 1073741824)
+    if ($valor -ge 1048576 -and $valor -lt 1073741824)
     {
-        Write-Host  -ForegroundColor Green "`nTOTAL = "  ($TOTALDIR/1mb).ToString("0.00").PadLeft(5)  "MB`n " 
+        Write-Host  -ForegroundColor $color $cadena1 ($valor/1mb).ToString("0.00").PadLeft(10)  "MB `t" $cadena2  
     }
-    if ($TOTALDIR -ge 1073741824)
+    if ($valor -ge 1073741824)
     {
-        Write-Host  -ForegroundColor Green "`nTOTAL = "  ($TOTALDIR/1gb).ToString("0.00").PadLeft(5)  "GB`n " 
+        Write-Host  -ForegroundColor $color $cadena1 ($valor/1gb).ToString("0.00").PadLeft(10)  "GB `t" $cadena2  
     }
 }
