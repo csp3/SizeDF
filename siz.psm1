@@ -1,4 +1,4 @@
-﻿$global:TOTAL = @() 
+$global:TOTAL = @() 
 
 function size_recursivo 
 {
