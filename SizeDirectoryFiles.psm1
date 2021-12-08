@@ -1,18 +1,38 @@
-﻿$global:TOTAL = @() 
+﻿<#
+.DESCRIPTION
+Muestra el tamaño de directorios y archivos en una Lista 
+.EXAMPLE
+C:\PS> SizeDF [Ocultos] 
+.NOTES
+Author: CSolisP
+Date:   Dic 2021
+#>
+
+$global:TOTAL = @() 
 
 function size_recursivo 
 {
     [CmdletBinding()]
     param (
-        $RUTA = "."
+        $RUTA = ".",
+        $Ocultados = ""
     )
-
-    # $ACTUAL = Get-Location 
+ 
     $ACUMULA = 0
-    foreach ($item in Get-ChildItem $RUTA) 
+
+    if($Ocultados -eq "Ocultos")
+    {
+        $COMANDO = Get-ChildItem $RUTA -Force  
+    }
+    else 
+    {
+        $COMANDO = Get-ChildItem $RUTA 
+    }
+
+    foreach ($item in $COMANDO ) 
     {
         $FN = $item.FullName 
-        if(Test-Path -Path $FN -PathType Container)
+        if(Test-Path -Path $FN -PathType Container) 
         {
             # Write-Host $FN 
             size_recursivo $FN
@@ -27,16 +47,24 @@ function size_recursivo
     $global:TOTAL  += $ACUMULA 
 }
 
-function SizeDir 
+function SizeDir($Ocul = "") 
 {
     $SUMATOTAL = 0
 
-    size_recursivo "."
+    if ($Ocul -eq "Ocultos") 
+    {
+        size_recursivo "." "Ocultos"
+    } 
+    else 
+    {
+        size_recursivo "." 
+    }
 
     foreach ($item in $global:TOTAL) 
     {
         $SUMATOTAL += $item 
     }
 
-    Write-Host "SUMA TOTAL = " $SUMATOTAL 
+    Write-Host "TOTAL = " $SUMATOTAL 
+    $global:TOTAL = @() 
 } 
