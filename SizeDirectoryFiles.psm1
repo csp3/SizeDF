@@ -20,12 +20,12 @@ function size_recursivo
  
     $ACUMULA = 0
 
-    $COMANDO = Get-ChildItem -Path $RUTA -Force  
+    $COMANDO = Get-ChildItem -LiteralPath $RUTA -Force  
     
     foreach ($item in $COMANDO ) 
     {
         $FN = $item.FullName 
-        if(Test-Path -Path $FN -PathType Container) 
+        if(Test-Path -LiteralPath $FN -PathType Container) 
         {
             # Write-Host $FN 
             size_recursivo $FN
@@ -33,7 +33,7 @@ function size_recursivo
         else 
         {
             # Write-Host $FN 
-            $ACUMULA += (Get-Item -Path $FN -Force).Length 
+            $ACUMULA += (Get-Item -LiteralPath $FN -Force).Length 
         }  
     } 
     
@@ -66,7 +66,7 @@ function SizeDF
     Write-Host "`nTYPE        SIZE          NAME"
     Write-Host "--------------------------------" 
 
-    $COMANDO = Get-ChildItem -Path $Ruta -Force 
+    $COMANDO = Get-ChildItem -LiteralPath $Ruta -Force 
 
     $TOTALDIR = 0 
     foreach ($item in $COMANDO )  
@@ -74,7 +74,7 @@ function SizeDF
         #ruta completa 
         $FN = $item.FullName  
         
-        if(Test-Path -Path $FN -PathType Container) 
+        if(Test-Path -LiteralPath $FN -PathType Container) 
         {
             #calculando tamanio
             $TAMANIO = SizeD -Ruta $FN 
@@ -91,7 +91,7 @@ function SizeDF
         else 
         {   
             #calculando tamanio 
-            $TAMANIO = (Get-Item -Path $FN -Force).Length 
+            $TAMANIO = (Get-Item -LiteralPath $FN -Force).Length 
             #si tiene atributo oculto 
             if (Get-Item $FN -Force | where-object { $_.Attributes -like "*hidden*" })  
             {
