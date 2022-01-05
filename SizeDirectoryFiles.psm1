@@ -1,18 +1,17 @@
-﻿<#
-.DESCRIPTION
-Muestra el tamaño de directorios y archivos en una Lista (si dir. o fil. estan ocultos) 
-.EXAMPLE
-C:\PS> SizeDF [Ruta] 
-.NOTES
-Author: CSolisP
-Date:   Dic 2021
-#>
-
-$global:TOTAL = @() 
+﻿$global:TOTAL = @() 
 
 #funcion que halla el tamaño de un directorio 
 function size_recursivo 
 {
+    <#
+    .DESCRIPTION
+    Muestra el tamaño de directorios y archivos en una Lista (si dir. o fil. estan ocultos) 
+    .EXAMPLE
+    C:\PS> SizeDF [Ruta] 
+    .NOTES
+    Author: CSolisP
+    Date:   Dic 2021
+    #>
     [CmdletBinding()]
     param (
         $Ruta = "." 
