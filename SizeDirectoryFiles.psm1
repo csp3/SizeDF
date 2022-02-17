@@ -1,4 +1,7 @@
 ﻿$global:TOTAL = @() 
+$global:ELNOMBRE = @()
+$global:ELTIPO = @()
+$global:ELSIZE = @() 
 
 #funcion que halla el tamaño de un directorio 
 function size_recursivo 
@@ -35,7 +38,7 @@ function size_recursivo
             $ACUMULA += (Get-Item -LiteralPath $FN -Force).Length 
         }  
     } 
-    
+
     $global:TOTAL += $ACUMULA 
 }
 
@@ -62,52 +65,66 @@ function SizeDF
         $Ruta = "." 
     )
 
-    Write-Host "`nTYPE        SIZE          NAME"
-    Write-Host "--------------------------------" 
+    Write-Host "`nTYPE      FEC.CREA         FEC.MOD              SIZE      NAME";
+    Write-Host "-----------------------------------------------------------------"; 
 
     $COMANDO = Get-ChildItem -LiteralPath $Ruta -Force 
-
+    
     $TOTALDIR = 0 
     foreach ($item in $COMANDO )  
     { 
         #ruta completa 
-        $FN = $item.FullName  
+        $FN = $item.FullName; 
+        $global:ELNOMBRE += $FN;
         
         if(Test-Path -LiteralPath $FN -PathType Container) 
         {
             #calculando tamanio
             $TAMANIO = SizeD -Ruta $FN 
+            # $fm = '{0:dd/MM/yyyy}' -f (Get-ChildItem $FN).LastWriteTime;
+            # $fc = '{0:dd/MM/yyyy}' -f (Get-ChildItem $FN).creationtime; 
+            $fm = (Get-ChildItem $FN).LastWriteTime | Sort-Object;
+            $fc = (Get-ChildItem $FN).creationtime | Sort-Object;
+            $fmm = '{0:dd/MM/yyyy}' -f $fm[$fm.count - 1];
+            $fcc = '{0:dd/MM/yyyy}' -f $fc[0];
             #si tiene atributo oculto 
             if (Get-Item $FN -Force | where-object { $_.Attributes -like "*hidden*" })  
             {
-                presentacion -valor $TAMANIO -cadena1 "dir." -cadena2 $FN -color "Green"         
+                presentacion -valor $TAMANIO -cadena1 "dir." -cadena2 $FN -color "Green" -feccre $fcc -fecmod $fmm   
             }
             else 
             {
-                presentacion -valor $TAMANIO -cadena1 "dir" -cadena2 $FN -color "Green" 
+                presentacion -valor $TAMANIO -cadena1 "dir" -cadena2 $FN -color "Green" -feccre $fcc -fecmod $fmm 
             }
+            $global:ELTIPO += "dir.";
         } 
         else 
         {   
+            $fm = (Get-ChildItem $FN).LastWriteTime | Sort-Object;
+            $fc = (Get-ChildItem $FN).creationtime | Sort-Object; 
+            $fmm = '{0:dd/MM/yyyy}' -f $fm[$fm.count - 1];
+            $fcc = '{0:dd/MM/yyyy}' -f $fc[0];
             #calculando tamanio 
             $TAMANIO = (Get-Item -LiteralPath $FN -Force).Length 
             #si tiene atributo oculto 
             if (Get-Item $FN -Force | where-object { $_.Attributes -like "*hidden*" })  
             {
-                presentacion -valor $TAMANIO -cadena1 "fil." -cadena2 $FN          
+                presentacion -valor $TAMANIO -cadena1 "fil." -cadena2 $FN -color "white" -feccre $fcc -fecmod $fmm 
             }
             else 
             {
-                presentacion -valor $TAMANIO -cadena1 "fil" -cadena2 $FN  
+                presentacion -valor $TAMANIO -cadena1 "fil" -cadena2 $FN -color "white" -feccre $fcc -fecmod $fmm
             }
+            $global:ELTIPO += "fil.";
         } 
         ;
-        $TOTALDIR = $TOTALDIR + $TAMANIO 
+        $TOTALDIR = $TOTALDIR + $TAMANIO; 
+        $global:ELSIZE += $TOTALDIR; 
     }
     ; 
-    #mostrando resultado
+    #mostrando resultado 
     write-host " "
-    presentacion -valor $TOTALDIR -cadena1 "TOTAL = " -cadena2 "" -color "Green" 
+    presentacion -valor $TOTALDIR -cadena1 "TOTAL = `t" -color "Green" 
     write-host " "  
 }
 
@@ -118,23 +135,27 @@ function presentacion
         $valor = 0, 
         $cadena1 = "", 
         $cadena2 = "",
-        $color = "White" 
+        $color = "White", 
+        $fecmod = "",
+        $feccre = ""
     ) 
     
     if ($valor -lt 2014) 
     {
-        Write-Host  -ForegroundColor $color $cadena1 ($valor/1  ).ToString("0.00").PadLeft(10)  "by `t" $cadena2  
+        Write-Host  -ForegroundColor $color $cadena1 "`t" $feccre "`t" $fecmod "`t" ($valor/1  ).ToString("0.00").PadLeft(10)  "by `t" $cadena2 
     }
     if ($valor -ge 1024 -and $valor -lt 1048576) 
     {
-        Write-Host  -ForegroundColor $color $cadena1 ($valor/1kb).ToString("0.00").PadLeft(10)  "Kb `t" $cadena2  
+        Write-Host  -ForegroundColor $color $cadena1 "`t" $feccre "`t" $fecmod "`t"  ($valor/1kb).ToString("0.00").PadLeft(10)  "Kb `t" $cadena2  
     }
     if ($valor -ge 1048576 -and $valor -lt 1073741824)
     {
-        Write-Host  -ForegroundColor $color $cadena1 ($valor/1mb).ToString("0.00").PadLeft(10)  "MB `t" $cadena2  
+        Write-Host  -ForegroundColor $color $cadena1 "`t" $feccre "`t" $fecmod "`t"  ($valor/1mb).ToString("0.00").PadLeft(10)  "MB `t" $cadena2  
     }
     if ($valor -ge 1073741824)
     {
-        Write-Host  -ForegroundColor $color $cadena1 ($valor/1gb).ToString("0.00").PadLeft(10)  "GB `t" $cadena2  
+        Write-Host  -ForegroundColor $color $cadena1 "`t" $feccre "`t" $fecmod "`t"  ($valor/1gb).ToString("0.00").PadLeft(10)  "GB `t" $cadena2  
     }
 }
+
+
